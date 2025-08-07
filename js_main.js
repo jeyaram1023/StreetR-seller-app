@@ -83,12 +83,11 @@ function handleTabChange(activeTabId) {
             }
             break;
         case 'profile-display-page-content':
-            if (window.userProfile) {
-                displayProfileDetails(window.userProfile);
-            } else {
-                 document.getElementById('profile-details-view').innerHTML = '<p>Loading profile or profile not set up.</p>';
-            }
-            break;
+    // Always call displayProfileDetails. It is designed to handle
+    // both existing and non-existing profiles without breaking the page.
+    displayProfileDetails(window.userProfile);
+    break;
+
         case 'history-page-content':
             // Load history data if implementing this page
             document.getElementById('order-history-list').innerHTML = "<p>Order history would be shown here.</p>";
