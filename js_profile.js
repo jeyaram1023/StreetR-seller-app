@@ -1,5 +1,3 @@
-// js/profile.js
-
 const profileForm = document.getElementById('profile-form');
 const profileMessage = document.getElementById('profile-message');
 const letsGoButton = document.getElementById('lets-go-button');
@@ -132,7 +130,7 @@ function populateProfileForm(profile) {
 }
 
 function displayProfileDetails(profile) {
-    // FIX: Handle the case where profile is null or loading
+    // Handle the case where profile is null or loading
     if (!profile) {
         if (viewShopName) viewShopName.textContent = 'Loading...';
         return;
@@ -147,10 +145,37 @@ function displayProfileDetails(profile) {
     if (viewState) viewState.textContent = profile.state || 'N/A';
     if (viewPincode) viewPincode.textContent = profile.pincode || 'N/A';
     
-    // QR Code Logic
+    // ---------------------------------------------------------
+    // QR Code Logic (FIXED)
+    // ---------------------------------------------------------
     if (sellerQRCodeDiv && profile.id) {
+        // 1. Clear any existing content (previous QRs or loading text)
+        sellerQRCodeDiv.innerHTML = '';
+
+        // 2. Construct the URL customers will visit
+        // This links to the customer menu for this specific seller
         const menuUrl = `${window.location.origin}/customer-menu.html?sellerId=${profile.id}`;
-        sellerQRCodeDiv.innerHTML = `<p>Scan to view menu (QR Code for: ${menuUrl})</p><p><small>You'd use a library like qrcode.js to generate this.</small></p>`;
+
+        // 3. Generate the QR Code using the qrcode.js library
+        try {
+            // Check if QRCode library is loaded
+            if (typeof QRCode === 'undefined') {
+                sellerQRCodeDiv.innerHTML = '<p style="color:red;">Error: QR Library not loaded.</p>';
+                console.error('qrcode.js library not found. Check your HTML script tags.');
+            } else {
+                new QRCode(sellerQRCodeDiv, {
+                    text: menuUrl,
+                    width: 150,      // Width of the QR code
+                    height: 150,     // Height of the QR code
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.M
+                });
+            }
+        } catch (e) {
+            console.error("Error generating QR Code:", e);
+            sellerQRCodeDiv.innerText = "Error generating QR Code";
+        }
     }
 }
 
