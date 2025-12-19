@@ -7,7 +7,8 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     alert("Application is not configured correctly. Supabase credentials missing.");
 }
 
-const supabase = self.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// FIX: Renamed variable to '_supabase' to avoid conflict with the global 'supabase' library object
+const _supabase = self.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Expose supabase client globally or export it if using modules
-window.supabase = supabase;
+// Expose the initialized client globally, overwriting the library object
+window.supabase = _supabase;
