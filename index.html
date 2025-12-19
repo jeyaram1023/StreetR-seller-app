@@ -5,26 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>StreetR Seller</title>
     <link rel="stylesheet" href="css_style.css">
+    
+    <!-- 1. LIBRARIES LOADED FIRST -->
+    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<!-- Firebase Core & Messaging SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
+    <!-- Firebase Core & Messaging SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
+    <!-- QR Code Library (Moved to Head to ensure it's ready for profile.js) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
     <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#ff6600">
+    <meta name="theme-color" content="#ff6600">
 </head>
 <body>
     <div id="app">
+        <!-- HEADER -->
         <header id="app-header" class="app-header" style="display: none;">
             <div class="header-left">
-                <span id="history-icon" class="history-icon">📜</span> </div>
+                <span id="history-icon" class="history-icon">📜</span> 
+            </div>
             <div class="header-title">StreetR Seller</div>
             <div class="header-right">
                 <button id="logout-button" class="logout-button" style="display: none;">Logout</button>
             </div>
         </header>
 
+        <!-- MAIN PAGE CONTAINER -->
         <main id="page-container">
+            
+            <!-- 1. LOGIN PAGE -->
             <div id="login-page" class="page active">
                 <div class="page-content centered-content">
                     <img src="https://assets.onecompiler.app/42q5e2pr5/43jtgmace/1000127427.jpg" alt="App Icon" class="app-icon-large">
@@ -38,10 +48,10 @@
                     <button id="login-button">Login</button>
                     <p id="login-message" class="error-message"></p>
                     <div class="footer">&copy; 2025 StreetR </div>
-                    
                 </div>
             </div>
 
+            <!-- 2. PROFILE SETUP PAGE (First time setup) -->
             <div id="profile-setup-page" class="page">
                 <div class="page-header">Profile Setup</div>
                 <div class="page-content">
@@ -82,6 +92,7 @@
                 </div>
             </div>
 
+            <!-- 3. SUCCESS PAGE (After setup) -->
             <div id="lets-go-page" class="page">
                 <div class="page-content centered-content">
                     <img src="https://assets.onecompiler.app/42q5e2pr5/43jtgmace/1000127427.jpg" alt="App Icon" class="app-icon-large">
@@ -90,10 +101,12 @@
                     <button id="lets-go-button">Let's Go!</button>
                 </div>
                 <div class="footer">&copy; 2025 StreetR </div>
-                     
             </div>
 
+            <!-- 4. MAIN APP VIEW (Tabs) -->
             <div id="main-app-view" class="page">
+                
+                <!-- Tab 1: Orders -->
                 <div id="orders-page-content" class="tab-content active">
                     <div class="orders-header">
                         <h3>📦 Incoming Orders</h3>
@@ -106,54 +119,47 @@
                         </div>
                     </div>
                     <div id="orders-list">
-                        </div>
+                        <!-- Orders inserted by JS -->
+                    </div>
                 </div>
 
+                <!-- Tab 2: Add Menu -->
                 <div id="add-menu-page-content" class="tab-content">
                     <h3>➕ Add/Edit Menu Items</h3>
                     <div id="menu-items-list">
-                        </div>
-                    <button id="fab-add-menu" class="fab">➕</button>
-
-                    <div id="menu-item-modal" class="modal">
-                        <div class="modal-content">
-                            <span class="close-button">&times;</span>
-                            <h4 id="modal-title">Add New Menu Item</h4>
-                            <input type="hidden" id="menu-item-id">
-                            <label for="item-image">Image Upload:</label>
-                            <input type="file" id="item-image" accept="image/*">
-                            <img id="image-preview" style="max-width: 100px; margin-top: 10px;" src="" alt="Preview will appear here">
-                            <label for="item-name">Item Name:</label>
-                            <input type="text" id="item-name" required>
-                            <label for="item-price">Price:</label>
-                            <input type="number" id="item-price" step="0.01" required>
-                            <label for="item-description">Description (Optional):</label>
-                            <textarea id="item-description" rows="3"></textarea>
-                            <button id="save-menu-item-button" class="blue-button">Save Item</button>
-                        </div>
+                        <!-- Items inserted by JS -->
                     </div>
-                </div> <!-- FIX: Added missing closing div for add-menu-page-content -->
+                    <button id="fab-add-menu" class="fab">➕</button>
+                </div>
 
+                <!-- Tab 3: Profile Display -->
                 <div id="profile-display-page-content" class="tab-content">
                     <h3>👤 Your Profile</h3>
                     <div id="profile-details-view">
                         <p><strong>Shop Name:</strong> <span id="view-shop-name"></span></p>
-                        <p><strong>Business Category:</strong> <span id="view-business-category"></span></p>
-                        <p><strong>Mobile Number:</strong> <span id="view-mobile-number"></span></p>
+                        <p><strong>Category:</strong> <span id="view-business-category"></span></p>
+                        <p><strong>Mobile:</strong> <span id="view-mobile-number"></span></p>
                         <p><strong>Street:</strong> <span id="view-street-name"></span></p>
                         <p><strong>District:</strong> <span id="view-district"></span></p>
                         <p><strong>State:</strong> <span id="view-state"></span></p>
                         <p><strong>Pincode:</strong> <span id="view-pincode"></span></p>
-                        <button id="edit-profile-button">Edit Profile</button>
-                        <button id="help-button" class="help-button" onclick="window.open('https://sites.google.com/view/streetr-seller-help/home', '_blank')">❓ Help</button>
+                        
+                        <div class="profile-actions">
+                            <button id="edit-profile-button">Edit Profile</button>
+                            <button id="help-button" class="help-button" onclick="window.open('https://sites.google.com/view/streetr-seller-help/home', '_blank')">❓ Help</button>
+                        </div>
                     </div>
+                    
+                    <hr class="section-separator"> <!-- Separator Logic -->
+
                     <h4>Seller QR Code:</h4>
-                    <div id="seller-qr-code">
-                        <p>(QR Code will link to your menu page - to be implemented)</p>
+                    <div id="seller-qr-code" class="qr-container">
+                        <p>(Loading QR Code...)</p>
                     </div>
                 </div>
 
-                 <div id="history-page-content" class="tab-content">
+                <!-- Tab 4: History (Hidden primarily) -->
+                <div id="history-page-content" class="tab-content">
                     <h3>📜 Order History</h3>
                     <div id="order-history-list">
                         <p>Order history functionality to be implemented.</p>
@@ -162,6 +168,26 @@
             </div>
         </main>
 
+        <!-- ADD MENU ITEM MODAL (Moved outside tabs for safety) -->
+        <div id="menu-item-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <h4 id="modal-title">Add New Menu Item</h4>
+                <input type="hidden" id="menu-item-id">
+                <label for="item-image">Image Upload:</label>
+                <input type="file" id="item-image" accept="image/*">
+                <img id="image-preview" style="max-width: 100px; margin-top: 10px;" src="" alt="Preview will appear here">
+                <label for="item-name">Item Name:</label>
+                <input type="text" id="item-name" required>
+                <label for="item-price">Price:</label>
+                <input type="number" id="item-price" step="0.01" required>
+                <label for="item-description">Description (Optional):</label>
+                <textarea id="item-description" rows="3"></textarea>
+                <button id="save-menu-item-button" class="blue-button">Save Item</button>
+            </div>
+        </div>
+
+        <!-- BOTTOM NAVIGATION -->
         <nav id="bottom-nav" class="bottom-nav" style="display: none;">
             <button data-page="orders-page-content" class="nav-item active">📦 Orders</button>
             <button data-page="add-menu-page-content" class="nav-item">➕ Add Menu</button>
@@ -169,12 +195,12 @@
         </nav>
     </div>
 
+    <!-- APP LOGIC SCRIPTS -->
     <script src="js_supabaseClient.js"></script>
     <script src="js_auth.js"></script>
     <script src="js_profile.js"></script>
     <script src="js_menu.js"></script>
     <script src="js_orders.js"></script>
     <script src="js_main.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </body>
 </html>
