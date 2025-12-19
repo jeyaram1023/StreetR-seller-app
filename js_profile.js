@@ -3,30 +3,40 @@
 const profileForm = document.getElementById('profile-form');
 const profileMessage = document.getElementById('profile-message');
 const letsGoButton = document.getElementById('lets-go-button');
+
 // Profile Setup Page Elements
 const shopNameInput = document.getElementById('shop-name');
-const businessCategoryInput =
-document.getElementById('business-category');
+const businessCategoryInput = document.getElementById('business-category');
 const mobileNumberInput = document.getElementById('mobile-number');
 const streetNameInput = document.getElementById('street-name');
 const districtInput = document.getElementById('district');
 const stateInput = document.getElementById('state');
 const pincodeInput = document.getElementById('pincode');
+
 // Profile Display Page Elements
 const viewShopName = document.getElementById('view-shop-name');
-const viewBusinessCategory =
-document.getElementById('view-business-category');
-const viewMobileNumber =
-document.getElementById('view-mobile-number');
+const viewBusinessCategory = document.getElementById('view-business-category');
+const viewMobileNumber = document.getElementById('view-mobile-number');
 const viewStreetName = document.getElementById('view-street-name');
 const viewDistrict = document.getElementById('view-district');
 const viewState = document.getElementById('view-state');
 const viewPincode = document.getElementById('view-pincode');
-const editProfileButton =
-document.getElementById('edit-profile-button');
+const editProfileButton = document.getElementById('edit-profile-button');
 const sellerQRCodeDiv = document.getElementById('seller-qr-code');
 
+// Helper to check if Supabase is ready
+function checkSupabaseReady() {
+    if (!window.supabase || !window.supabase.from) {
+        console.error("Supabase client not ready.");
+        alert("Database connection not ready. Please refresh the page.");
+        return false;
+    }
+    return true;
+}
+
 async function saveProfile() {
+    if (!checkSupabaseReady()) return;
+
     const user = window.currentUser;
     if (!user) {
         profileMessage.textContent = 'You must be logged in to save a profile.';
@@ -35,7 +45,7 @@ async function saveProfile() {
 
     const profileData = {
         id: user.id, // Link to auth.uid()
-        user_type: 'Seller', // *** MODIFIED: Explicitly set user type ***
+        user_type: 'Seller', // Explicitly set user type
         shop_name: shopNameInput.value,
         business_category: businessCategoryInput.value,
         mobile_number: mobileNumberInput.value,
@@ -83,12 +93,14 @@ async function saveProfile() {
 }
 
 async function fetchProfile(userId) {
+    if (!checkSupabaseReady()) return null;
+
     try {
         const { data, error, status } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', userId)
-            .eq('user_type', 'Seller') // *** MODIFIED: Ensure we only fetch seller profiles ***
+            .eq('user_type', 'Seller')
             .single();
 
         if (error && status !== 406) { // 406 means no rows found
@@ -109,27 +121,34 @@ async function fetchProfile(userId) {
 
 function populateProfileForm(profile) {
     if (profile) {
-        shopNameInput.value = profile.shop_name || '';
-        businessCategoryInput.value = profile.business_category || '';
-        mobileNumberInput.value = profile.mobile_number || '';
-        streetNameInput.value = profile.street_name || '';
-        districtInput.value = profile.district || '';
-        stateInput.value = profile.state || '';
-        pincodeInput.value = profile.pincode || '';
+        if (shopNameInput) shopNameInput.value = profile.shop_name || '';
+        if (businessCategoryInput) businessCategoryInput.value = profile.business_category || '';
+        if (mobileNumberInput) mobileNumberInput.value = profile.mobile_number || '';
+        if (streetNameInput) streetNameInput.value = profile.street_name || '';
+        if (districtInput) districtInput.value = profile.district || '';
+        if (stateInput) stateInput.value = profile.state || '';
+        if (pincodeInput) pincodeInput.value = profile.pincode || '';
     }
 }
 
 function displayProfileDetails(profile) {
-    if (profile) {
-        viewShopName.textContent = profile.shop_name || 'N/A';
-        viewBusinessCategory.textContent = profile.business_category || 'N/A';
-        viewMobileNumber.textContent = profile.mobile_number || 'N/A';
-        viewStreetName.textContent = profile.street_name || 'N/A';
-        viewDistrict.textContent = profile.district || 'N/A';
-        viewState.textContent = profile.state || 'N/A';
-        viewPincode.textContent = profile.pincode || 'N/A';
-        
-        // QR Code Logic
+    // FIX: Handle the case where profile is null or loading
+    if (!profile) {
+        if (viewShopName) viewShopName.textContent = 'Loading...';
+        return;
+    }
+
+    // Safely update elements if they exist
+    if (viewShopName) viewShopName.textContent = profile.shop_name || 'N/A';
+    if (viewBusinessCategory) viewBusinessCategory.textContent = profile.business_category || 'N/A';
+    if (viewMobileNumber) viewMobileNumber.textContent = profile.mobile_number || 'N/A';
+    if (viewStreetName) viewStreetName.textContent = profile.street_name || 'N/A';
+    if (viewDistrict) viewDistrict.textContent = profile.district || 'N/A';
+    if (viewState) viewState.textContent = profile.state || 'N/A';
+    if (viewPincode) viewPincode.textContent = profile.pincode || 'N/A';
+    
+    // QR Code Logic
+    if (sellerQRCodeDiv && profile.id) {
         const menuUrl = `${window.location.origin}/customer-menu.html?sellerId=${profile.id}`;
         sellerQRCodeDiv.innerHTML = `<p>Scan to view menu (QR Code for: ${menuUrl})</p><p><small>You'd use a library like qrcode.js to generate this.</small></p>`;
     }
